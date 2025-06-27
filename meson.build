@@ -20,6 +20,9 @@ kindle_root = get_option('kindle_root_dir')
 acebt_dep = declare_dependency(
   dependencies: cc.find_library('ace_bt', dirs: join_paths(kindle_root, 'usr/lib'), required: true)
 )
+pthread_dep = declare_dependency(
+  dependencies: cc.find_library('pthread', dirs: join_paths(kindle_root, 'usr/lib'), required: true)
+)
 
 
 kindle_bt_api = executable(
@@ -28,6 +31,7 @@ kindle_bt_api = executable(
   include_directories: include_dirs,
   dependencies: [
     acebt_dep,
+    pthread_dep,
   ],
   cpp_args: '-static-libstdc++',
   link_args: ['-static-libstdc++'],
