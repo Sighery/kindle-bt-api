@@ -109,9 +109,9 @@ typedef struct {
     bond_ssp_request_callback ssp_req_cb; /**< SSP Request callback */
 } aceBT_securityCallbacks_t;
 
-// /** @} */
+/** @} */
 
-// /** Local device management APIs */
+/** Local device management APIs */
 
 /**
  * @defgroup ACE_BT_API_COMMON Common/Device-management APIs
@@ -206,20 +206,20 @@ ace_status_t aceBT_registerAsSecurityClient(
 //  */
 // aceBT_status_t aceBT_disableHCI(aceBT_sessionHandle session_handle);
 
-// /**
-//  * @brief Function to retrieve the current Bluetooth radio state. If the BT
-//  * manager is not ready or if IPC call fails, this API will return an
-//  * appropriate error. Otherwise, the adapter state will be filled and returned.
-//  *
-//  * @param[out] p_out_state Adapter state @ref aceBT_state_t
-//  * @return ACEBT_STATUS_SUCCESS if success
-//  * @return ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return ACEBT_STATUS_FAIL for all other errors
-//  */
-// aceBT_status_t aceBT_getRadioState(aceBT_state_t* p_out_state);
+/**
+ * @brief Function to retrieve the current Bluetooth radio state. If the BT
+ * manager is not ready or if IPC call fails, this API will return an
+ * appropriate error. Otherwise, the adapter state will be filled and returned.
+ *
+ * @param[out] p_out_state Adapter state @ref aceBT_state_t
+ * @return ACEBT_STATUS_SUCCESS if success
+ * @return ACEBT_STATUS_NOMEM if ran out of memory
+ * @return ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return ACEBT_STATUS_NOT_READY if server is not ready
+ * @return ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_getRadioState(aceBT_state_t* p_out_state);
 
 // /**
 //  * @brief Function to synchronously retrieves the count of bonded devices.

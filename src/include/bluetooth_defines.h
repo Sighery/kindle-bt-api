@@ -105,13 +105,13 @@ typedef enum {
 //         4 /**< HFP profile Disconnecting state */
 // } aceBT_hfpConnState_t;
 
-// /**
-//  * @brief Discovery states
-//  */
-// typedef enum {
-//     ACEBT_DISCOVERY_STATE_STOPPED = 0, /**< Discovery stopped state */
-//     ACEBT_DISCOVERY_STATE_STARTED = 1  /**< Discovery started state */
-// } aceBT_discoveryState_t;
+/**
+ * @brief Discovery states
+ */
+typedef enum {
+    ACEBT_DISCOVERY_STATE_STOPPED = 0, /**< Discovery stopped state */
+    ACEBT_DISCOVERY_STATE_STARTED = 1  /**< Discovery started state */
+} aceBT_discoveryState_t;
 
 // /**
 //  * @name Pairing States
@@ -137,14 +137,14 @@ typedef enum {
 //         3 /**< HFP audio Disconnecting state */
 // } aceBT_hfpAudioState_t;
 
-// /**
-//  * @brief Audio states
-//  */
-// typedef enum {
-//     ACEBT_AUDIO_STATE_SUSPENDED = 0, /**< Audio suspended state */
-//     ACEBT_AUDIO_STATE_STOPPED = 1,   /**< Audio stopped state */
-//     ACEBT_AUDIO_STATE_STARTED = 2    /**< Audio started state */
-// } aceBT_audioState_t;
+/**
+ * @brief Audio states
+ */
+typedef enum {
+    ACEBT_AUDIO_STATE_SUSPENDED = 0, /**< Audio suspended state */
+    ACEBT_AUDIO_STATE_STOPPED = 1,   /**< Audio stopped state */
+    ACEBT_AUDIO_STATE_STARTED = 2    /**< Audio started state */
+} aceBT_audioState_t;
 
 // /**
 //  * @brief Profile connection states.
@@ -171,17 +171,17 @@ typedef struct {
     uint8_t name[ACEBT_BD_NAME_LEN];
 } __attribute__((packed)) aceBT_bdName_t;
 
-// /**
-//  * @brief Bluetooth Adapter Visibility Modes
-//  */
-// typedef enum {
-//     ACEBT_SCAN_MODE_NONE = 0,        /**< ScanMode is not connectable and not
-//                                     discoverable*/
-//     ACEBT_SCAN_MODE_CONNECTABLE = 1, /**< ScanMode is connectable but not
-//                                     discoverable */
-//     ACEBT_SCAN_MODE_CONNECTABLE_DISCOVERABLE = 2 /**< ScanMode is connectable
-//                                                 and discoverable */
-// } aceBT_scanMode_t;
+/**
+ * @brief Bluetooth Adapter Visibility Modes
+ */
+typedef enum {
+    ACEBT_SCAN_MODE_NONE = 0,        /**< ScanMode is not connectable and not
+                                    discoverable*/
+    ACEBT_SCAN_MODE_CONNECTABLE = 1, /**< ScanMode is connectable but not
+                                    discoverable */
+    ACEBT_SCAN_MODE_CONNECTABLE_DISCOVERABLE = 2 /**< ScanMode is connectable
+                                                and discoverable */
+} aceBT_scanMode_t;
 
 // /**
 //  * @brief Bluetooth Page-Scan intervals
@@ -436,23 +436,23 @@ typedef struct {
 //  * @endcond
 //  */ // cond DEPRECATED
 
-// /**
-//  * @brief Bluetooth Profiles
-//  */
-// typedef enum {
-//     ACEBT_PROFILE_HEADSET = 0,          /**< Headset and Handsfree profile */
-//     ACEBT_PROFILE_A2DP_SOURCE = 1,      /**< A2DP Source profile */
-//     ACEBT_PROFILE_AVRCP_TARGET = 2,     /**< AVRCP Target profile */
-//     ACEBT_PROFILE_A2DP_SINK = 3,        /**< A2DP Sink profile */
-//     ACEBT_PROFILE_AVRCP_CONTROLLER = 4, /**< AVRCP Controller profile */
-//     ACEBT_PROFILE_INPUT_DEVICE =
-//         5, /**< Human Input Device (HID) Host profile */
-//     ACEBT_PROFILE_HEADSET_CLIENT =
-//         6,                         /**< Headset Client (HFP-HF role) profile */
-//     ACEBT_PROFILE_GATT_CLIENT = 7, /**< GATT Client profile */
-//     ACEBT_PROFILE_GATT_SERVER = 8, /**< GATT Server profile */
-//     ACEBT_PROFILE_MAX_ID = 9       /**< Max profile index */
-// } aceBT_profile_t;
+/**
+ * @brief Bluetooth Profiles
+ */
+typedef enum {
+    ACEBT_PROFILE_HEADSET = 0,          /**< Headset and Handsfree profile */
+    ACEBT_PROFILE_A2DP_SOURCE = 1,      /**< A2DP Source profile */
+    ACEBT_PROFILE_AVRCP_TARGET = 2,     /**< AVRCP Target profile */
+    ACEBT_PROFILE_A2DP_SINK = 3,        /**< A2DP Sink profile */
+    ACEBT_PROFILE_AVRCP_CONTROLLER = 4, /**< AVRCP Controller profile */
+    ACEBT_PROFILE_INPUT_DEVICE =
+        5, /**< Human Input Device (HID) Host profile */
+    ACEBT_PROFILE_HEADSET_CLIENT =
+        6,                         /**< Headset Client (HFP-HF role) profile */
+    ACEBT_PROFILE_GATT_CLIENT = 7, /**< GATT Client profile */
+    ACEBT_PROFILE_GATT_SERVER = 8, /**< GATT Server profile */
+    ACEBT_PROFILE_MAX_ID = 9       /**< Max profile index */
+} aceBT_profile_t;
 
 // /**
 //  * @name Profile Masks
@@ -484,135 +484,135 @@ typedef struct {
 // typedef uint32_t aceBT_profilesMask_t;
 // /** @} */
 
-// /* @brief Bluetooth Adapter and Remote Device property types */
-// typedef enum {
-//     /* Properties common to both adapter and remote device */
-//     /**
-//      * Description - Bluetooth Device Name
-//      * Access mode - Adapter name can be GET/SET. Remote device can be GET
-//      * Data type   - bt_bdname_t
-//      */
-//     ACEBT_PROPERTY_BDNAME = 0x01,
-//     /**
-//      * Description - Bluetooth Device Address
-//      * Access mode - Only GET.
-//      * Data type   - bt_bdaddr_t
-//      */
-//     ACEBT_PROPERTY_BDADDR = 0x02,
-//     /**
-//      * Description - Bluetooth Service 128-bit UUIDs
-//      * Access mode - Only GET.
-//      * Data type   - Array of bt_uuid_t (Array size inferred from property
-//      * length).
-//      */
-//     ACEBT_PROPERTY_UUIDS = 0x03,
-//     /**
-//      * Description - Bluetooth Class of Device as found in Assigned Numbers
-//      * Access mode - Only GET.
-//      * Data type   - uint32_t.
-//      */
-//     ACEBT_PROPERTY_CLASS_OF_DEVICE = 0x04,
-//     /**
-//      * Description - Device Type - BREDR, BLE or DUAL Mode
-//      * Access mode - Only GET.
-//      * Data type   - bt_device_type_t
-//      */
-//     ACEBT_PROPERTY_TYPE_OF_DEVICE = 0x05,
-//     /**
-//      * Description - Bluetooth Service Record
-//      * Access mode - Only GET.
-//      * Data type   - bt_service_record_t
-//      */
-//     ACEBT_PROPERTY_SERVICE_RECORD = 0x06,
-//     /* Properties unique to adapter */
-//     /**
-//      * Description - Bluetooth Adapter scan mode
-//      * Access mode - GET and SET
-//      * Data type   - bt_scan_mode_t.
-//      */
-//     ACEBT_PROPERTY_ADAPTER_SCAN_MODE = 0x07,
-//     /**
-//      * Description - List of bonded devices
-//      * Access mode - Only GET.
-//      * Data type   - Array of bt_bdaddr_t of the bonded remote devices
-//      *               (Array size inferred from property length).
-//      */
-//     ACEBT_PROPERTY_ADAPTER_BONDED_DEVICES = 0x08,
-//     /**
-//      * Description - Bluetooth Adapter Discovery timeout (in seconds)
-//      * Access mode - GET and SET
-//      * Data type   - uint32_t
-//      */
-//     ACEBT_PROPERTY_ADAPTER_DISCOVERY_TIMEOUT = 0x09,
+/* @brief Bluetooth Adapter and Remote Device property types */
+typedef enum {
+    /* Properties common to both adapter and remote device */
+    /**
+     * Description - Bluetooth Device Name
+     * Access mode - Adapter name can be GET/SET. Remote device can be GET
+     * Data type   - bt_bdname_t
+     */
+    ACEBT_PROPERTY_BDNAME = 0x01,
+    /**
+     * Description - Bluetooth Device Address
+     * Access mode - Only GET.
+     * Data type   - bt_bdaddr_t
+     */
+    ACEBT_PROPERTY_BDADDR = 0x02,
+    /**
+     * Description - Bluetooth Service 128-bit UUIDs
+     * Access mode - Only GET.
+     * Data type   - Array of bt_uuid_t (Array size inferred from property
+     * length).
+     */
+    ACEBT_PROPERTY_UUIDS = 0x03,
+    /**
+     * Description - Bluetooth Class of Device as found in Assigned Numbers
+     * Access mode - Only GET.
+     * Data type   - uint32_t.
+     */
+    ACEBT_PROPERTY_CLASS_OF_DEVICE = 0x04,
+    /**
+     * Description - Device Type - BREDR, BLE or DUAL Mode
+     * Access mode - Only GET.
+     * Data type   - bt_device_type_t
+     */
+    ACEBT_PROPERTY_TYPE_OF_DEVICE = 0x05,
+    /**
+     * Description - Bluetooth Service Record
+     * Access mode - Only GET.
+     * Data type   - bt_service_record_t
+     */
+    ACEBT_PROPERTY_SERVICE_RECORD = 0x06,
+    /* Properties unique to adapter */
+    /**
+     * Description - Bluetooth Adapter scan mode
+     * Access mode - GET and SET
+     * Data type   - bt_scan_mode_t.
+     */
+    ACEBT_PROPERTY_ADAPTER_SCAN_MODE = 0x07,
+    /**
+     * Description - List of bonded devices
+     * Access mode - Only GET.
+     * Data type   - Array of bt_bdaddr_t of the bonded remote devices
+     *               (Array size inferred from property length).
+     */
+    ACEBT_PROPERTY_ADAPTER_BONDED_DEVICES = 0x08,
+    /**
+     * Description - Bluetooth Adapter Discovery timeout (in seconds)
+     * Access mode - GET and SET
+     * Data type   - uint32_t
+     */
+    ACEBT_PROPERTY_ADAPTER_DISCOVERY_TIMEOUT = 0x09,
 
-//     /* Properties unique to remote device */
-//     /**
-//      * Description - User defined friendly name of the remote device
-//      * Access mode - GET and SET
-//      * Data type   - bt_bdname_t.
-//      */
-//     ACEBT_PROPERTY_REMOTE_FRIENDLY_NAME = 0x0A,
-//     /**
-//      * Description - RSSI value of the inquired remote device
-//      * Access mode - Only GET.
-//      * Data type   - int32_t.
-//      */
-//     ACEBT_PROPERTY_REMOTE_RSSI = 0x0B,
-//     /**
-//      * Description - Remote version info
-//      * Access mode - SET/GET.
-//      * Data type   - bt_remote_version_t.
-//      */
-//     ACEBT_PROPERTY_REMOTE_VERSION_INFO = 0x0C,
-//     /**
-//      * Description - Local LE features
-//      * Access mode - GET.
-//      * Data type   - bt_local_le_features_t.
-//      */
-//     ACEBT_PROPERTY_LOCAL_LE_FEATURES = 0x0D,
-//     /**
-//      * Description - Manufacturer specific info on EIR
-//      * Access mode - GET
-//      * Data type   - bt_eir_manf_info_t.
-//      */
-//     ACEBT_PROPERTY_EIR_MANF_INFO = 0xFE,
-//     /**
-//      * Description - Time at which remote device had bonded first time
-//      * Access mode - GET
-//      * Data type   - int32_t.
-//      */
-//     ACEBT_PROPERTY_REMOTE_DEVICE_TIMESTAMP = 0xFF,
-//     /* Properties unique to adapter */
-//     /**
-//      * Description - Bluetooth Adapter scan parameters
-//      * Access mode - SET
-//      * Data type   - bt_scan_param_t.
-//      */
-//     ACEBT_PROPERTY_ADAPTER_SCAN_PARAM = 0x100,
-//     /**
-//      * Description - Bluetooth Adapter's connectability
-//      * Access mode - GET and SET
-//      * Data type   - 2 * uint32_t
-//      */
-//     ACEBT_PROPERTY_CONNECTABILITY = 0x101,
-//     /**
-//      * Description - Bluetooth Adapter's scan type (Standard or Interlaced)
-//      * Access mode - GET and SET
-//      * Data type   - bt_scan_type_t
-//      */
-//     ACEBT_PROPERTY_SCAN_TYPE = 0x102,
+    /* Properties unique to remote device */
+    /**
+     * Description - User defined friendly name of the remote device
+     * Access mode - GET and SET
+     * Data type   - bt_bdname_t.
+     */
+    ACEBT_PROPERTY_REMOTE_FRIENDLY_NAME = 0x0A,
+    /**
+     * Description - RSSI value of the inquired remote device
+     * Access mode - Only GET.
+     * Data type   - int32_t.
+     */
+    ACEBT_PROPERTY_REMOTE_RSSI = 0x0B,
+    /**
+     * Description - Remote version info
+     * Access mode - SET/GET.
+     * Data type   - bt_remote_version_t.
+     */
+    ACEBT_PROPERTY_REMOTE_VERSION_INFO = 0x0C,
+    /**
+     * Description - Local LE features
+     * Access mode - GET.
+     * Data type   - bt_local_le_features_t.
+     */
+    ACEBT_PROPERTY_LOCAL_LE_FEATURES = 0x0D,
+    /**
+     * Description - Manufacturer specific info on EIR
+     * Access mode - GET
+     * Data type   - bt_eir_manf_info_t.
+     */
+    ACEBT_PROPERTY_EIR_MANF_INFO = 0xFE,
+    /**
+     * Description - Time at which remote device had bonded first time
+     * Access mode - GET
+     * Data type   - int32_t.
+     */
+    ACEBT_PROPERTY_REMOTE_DEVICE_TIMESTAMP = 0xFF,
+    /* Properties unique to adapter */
+    /**
+     * Description - Bluetooth Adapter scan parameters
+     * Access mode - SET
+     * Data type   - bt_scan_param_t.
+     */
+    ACEBT_PROPERTY_ADAPTER_SCAN_PARAM = 0x100,
+    /**
+     * Description - Bluetooth Adapter's connectability
+     * Access mode - GET and SET
+     * Data type   - 2 * uint32_t
+     */
+    ACEBT_PROPERTY_CONNECTABILITY = 0x101,
+    /**
+     * Description - Bluetooth Adapter's scan type (Standard or Interlaced)
+     * Access mode - GET and SET
+     * Data type   - bt_scan_type_t
+     */
+    ACEBT_PROPERTY_SCAN_TYPE = 0x102,
 
-//     ACEBT_PROPERTY_GADGET_EIR_MANF_INFO = 0x103,
-// } aceBT_propertyType_t;
+    ACEBT_PROPERTY_GADGET_EIR_MANF_INFO = 0x103,
+} aceBT_propertyType_t;
 
-// /**
-//  * @brief Bluetooth Adapter Property
-//  */
-// typedef struct {
-//     aceBT_propertyType_t type;
-//     size_t len;
-//     void* val;
-// } aceBT_property_t;
+/**
+ * @brief Bluetooth Adapter Property
+ */
+typedef struct {
+    aceBT_propertyType_t type;
+    size_t len;
+    void* val;
+} aceBT_property_t;
 
 // /**
 //  * @brief PIN Code Array

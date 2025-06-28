@@ -16,3 +16,9 @@ Probably can also be used for connecting and using non-audio Classic devices
 This project links against the existing `libace_bt` shared object, which
 contains all the Bluetooth functionality. The CLI utility also makes use of this
 library.
+
+
+## Notes
+
+`5.16.3` seems to have old API for `aceBT_bleRegisterGattClient` and
+`aceBt_bleRegisterGattClient`? Using `5.17.3` works with the new headers.
