@@ -3,15 +3,22 @@
 #include <cstring>
 #include <unistd.h>
 #include <pthread.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
-#include "ace_bt.h"
-#include "bluetooth_session_api.h"
-#include "bluetooth_api.h"
-#include "bluetooth_common_api.h"
-#include "bluetooth_ble_api.h"
-#include "bluetooth_ble_gatt_client_api.h"
+#include "ace/ace_status.h"
+#include "ace/bluetooth_session_api.h"
+#include "ace/bluetooth_api.h"
+#include "ace/bluetooth_common_api.h"
+#include "ace/bluetooth_ble_api.h"
+#include "ace/bluetooth_ble_gatt_client_api.h"
+#include "ace/bluetooth_beacon_api.h"
 // #include "bluetooth_manager_ble_gattc_util.h"
+
+#include "core/defines.h"
+
+
+
 
 #define ADDR_WITH_COLON_LEN 17
 #define ADDR_WITHOUT_COLON_LEN 12
@@ -21,6 +28,7 @@
 aceBT_sessionHandle bt_session = NULL;
 aceBT_bleConnHandle ble_conn_handle = NULL;
 bool registered_ble = false;
+bool registered_beacon_client = false;
 bool registered_gatt_client = false;
 
 /** Callback for PIN request */
@@ -505,6 +513,84 @@ aceBT_bleGattClientCallbacks_t gatt_client_callback = {
     .on_ble_gattc_execute_write_cb = aceBt_bleGattcExecuteWriteCallback,
 };
 
+void aceBt_beaconAdvStateCallback(
+    aceBT_advInstanceHandle advInstance,
+    aceBT_beaconAdvState_t state,
+    aceBT_beaconPowerMode_t powerMode,
+    aceBT_beaconAdvMode_t beaconMode
+) {
+    // UNUSED(advInstance);
+    // UNUSED(powerMode);
+    // UNUSED(beaconMode);
+    if (state == ACEBT_BEACON_ADV_STARTED) {
+        printf(
+            "CLI callback : aceBtCli_beaconAdvStateCallback() state: "
+            "ADV_STARTED\n");
+        // CLI_SET_CB_VAR(callback_vars.adv_started, true);
+    } else if (state == ACEBT_BEACON_ADV_STOPPED) {
+        printf(
+            "CLI callback : aceBtCli_beaconAdvStateCallback() state: "
+            "ADV_STOPPED\n");
+        // CLI_SET_CB_VAR(callback_vars.adv_started, false);
+    } else if (state == ACEBT_BEACON_ADV_STOP_FAILED) {
+        printf(
+            "CLI callback : aceBtCli_beaconAdvStateCallback() state: "
+            "ADV_STOP_FAILED\n");
+    } else {
+        return;
+    }
+
+    // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_ADV_STATE_CB);
+}
+
+void aceBt_scanStateCallback(
+    aceBT_scanInstanceHandle scanInstance,
+    aceBT_beaconScanState_t state,
+    uint32_t interval, uint32_t window
+) {
+    printf("aceBT_beaconScanState_t scan: %" PRIu32
+            " state: %u interval: %" PRIu32 " window: %" PRIu32 "\n",
+            (uint32_t)scanInstance, state, interval, window);
+
+    if (state == ACEBT_BEACON_SCAN_STARTED) {
+        printf(
+            "CLI callback : aceBtCli_scanStateCallback() state: "
+            "BEACON_SCAN_STARTED\n");
+        // CLI_SET_CB_VAR(callback_vars.beacon_scan_started, true);
+    } else if (state == ACEBT_BEACON_SCAN_STOPPED) {
+        printf(
+            "CLI callback : aceBtCli_scanStateCallback() state: "
+            "BEACON_SCAN_STOPPED\n");
+        // CLI_SET_CB_VAR(callback_vars.beacon_scan_started, false);
+    } else {
+        return;
+    }
+
+    // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_SCAN_STATE_CB);
+}
+
+void aceBt_beaconClientRegisteredCallback(ace_status_t status) {
+    printf(
+        "CLI callback : aceBtCli_beaconClientRegisteredCallback() status: %d\n",
+        status);
+
+    registered_beacon_client = true;
+
+    // if (status == ACE_STATUS_OK) {
+    //     CLI_SET_CB_VAR(callback_vars.beacon_registered, true);
+    // }
+
+    // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_BEACON_REG_CB);
+}
+
+aceBT_beaconCallbacks_t beacon_callbacks = {
+    .size = sizeof(aceBT_beaconCallbacks_t),
+    .advStateChanged = aceBt_beaconAdvStateCallback,
+    .scanStateChanged = aceBt_scanStateCallback,
+    // .scanResults = aceBtCli_scanResultsCallback,
+    .onclientRegistered = aceBt_beaconClientRegisteredCallback
+};
+
 void session_state_callback(
     aceBT_sessionHandle sessionHandle, aceBT_sessionState_t state
 ) {
@@ -555,100 +641,154 @@ void* ble_connection(void* arg) {
     return NULL;
 }
 
-// ACE_STATUS_OK = 0
+void* gattc_registration(void* arg) {
+    printf("gattc_registration - start");
 
-int main() {
-    printf("Hello World from Kindle!\n");
-
-    bool isBLE = aceBT_isBLESupported();
-    printf("Is BLE enabled: %d\n", isBLE);
-
-    aceBT_sessionType_t supported_session = aceBT_getSupportedSession();
-    printf("Supported session type: %d\n", supported_session);
-
-    ace_status_t session_result = aceBT_openSession(
-        ACEBT_SESSION_TYPE_DUAL_MODE, &session_callbacks, &bt_session
-    );
-    printf("session_result: %d\n", session_result);
-    printf("BT Client :: opened session with %" PRIx32 "\n", (uint32_t)bt_session);
-
-    aceBT_state_t radio_state = ACEBT_STATE_DISABLED;
-    ace_status_t radio_status = aceBT_getRadioState(&radio_state);
-    printf("getRadioState() state:%u status:%d\n", radio_state, radio_status);
-
-    while(radio_state != ACEBT_STATE_ENABLED) {
-        printf("Radio not yet enabled. Waiting...\n");
-        sleep(5);
-    }
-    printf("Radio is enabled\n");
-
-    // BT Classic stuff?
-    aceBT_registerClientCallbacks(bt_session, &bt_callbacks);
-    aceBT_registerAsSecurityClient(bt_session, &bt_security_callbacks);
-
-    // Register BLE
-    aceBT_registerAsSecurityClient(bt_session, &bt_security_callbacks);
-    ace_status_t bleregister_status = aceBT_bleRegister(bt_session, &ble_callbacks);
-    printf("BLE registration status %d\n", bleregister_status);
-
-    while(!registered_ble) {
-        printf("BLE not yet registered. Waiting\n");
-        sleep(5);
-    }
-    printf("BLE registered\n");
-
-    printf("Deregister GATT clients?\n");
-    ace_status_t gattc_deregister_status = aceBT_bleDeRegisterGattClient(bt_session);
-    printf("GATT Client deregistration %d\n", gattc_deregister_status);
-
-    sleep(5);
-
-    ace_status_t gattc_status = aceBt_bleRegisterGattClient(
+    ace_status_t gattc_status = aceBT_bleRegisterGattClient(
         bt_session, &gatt_client_callback
     );
     // ace_status_t gattc_status = aceBt_bleRegisterGattClient(
     //     bt_session, &gatt_client_callback, ACE_BT_BLE_APPID_GENERIC
     // );
-    printf("Gatt Client registration %d\n", gattc_status);
+    printf("gattc_registration - Gatt Client registration %d\n", gattc_status);
 
-    // If I don't comment out this bit here, it will hang forever
+    while(!registered_gatt_client) {
+        printf("gattc_registration - Gatt Client not yet registered. Waiting\n");
+        sleep(5);
+    }
+    sleep(5);
+    printf("gattc_registration - Registered as GATT client\n");
 
-    // while(!registered_gatt_client) {
-    //     printf("Gatt Client not yet registered. Waiting\n");
+    return NULL;
+}
+
+int main() {
+    // The ACE BT stuff won't run under root user
+    if (setgid((gid_t)BLUETOOTH_GROUP_ID) || setuid((uid_t)BLUETOOTH_USER_ID)) {
+        fprintf(stderr, "Can't drop privileges to bluetooth user/group\n");
+        return -1;
+    }
+
+    printf("MAIN - User ID %d\n", getuid());
+    printf("MAIN - Group ID %d\n", getgid());
+
+    printf("MAIN - Hello World from Kindle!\n");
+
+    bool isBLE = aceBT_isBLESupported();
+    printf("MAIN - Is BLE enabled: %d\n", isBLE);
+
+    aceBT_sessionType_t supported_session = aceBT_getSupportedSession();
+    printf("MAIN - Supported session type: %d\n", supported_session);
+
+    ace_status_t session_result = aceBT_openSession(
+        // ACEBT_SESSION_TYPE_DUAL_MODE, &session_callbacks, &bt_session
+        ACEBT_SESSION_TYPE_BLE, &session_callbacks, &bt_session
+    );
+    printf("MAIN - session_result: %d\n", session_result);
+    printf("MAIN - BT Client :: opened session with %" PRIx32 "\n", (uint32_t)bt_session);
+
+    aceBT_state_t radio_state = ACEBT_STATE_DISABLED;
+    ace_status_t radio_status = aceBT_getRadioState(&radio_state);
+    printf("MAIN - getRadioState() state:%u status:%d\n", radio_state, radio_status);
+
+    while(radio_state != ACEBT_STATE_ENABLED) {
+        printf("MAIN - Radio not yet enabled. Waiting...\n");
+        sleep(5);
+    }
+    printf("MAIN - Radio is enabled\n");
+
+    // // BT Classic stuff?
+    // aceBT_registerClientCallbacks(bt_session, &bt_callbacks);
+    // aceBT_registerAsSecurityClient(bt_session, &bt_security_callbacks);
+
+    // Register BLE
+    aceBT_registerAsSecurityClient(bt_session, &bt_security_callbacks);
+    ace_status_t bleregister_status = aceBT_bleRegister(bt_session, &ble_callbacks);
+    printf("MAIN - BLE registration status %d\n", bleregister_status);
+
+    while(!registered_ble) {
+        printf("MAIN - BLE not yet registered. Waiting\n");
+        sleep(5);
+    }
+    printf("MAIN - BLE registered\n");
+
+    // printf("MAIN - Deregister GATT clients?\n");
+    // ace_status_t gattc_deregister_status = aceBT_bleDeRegisterGattClient(bt_session);
+    // printf("MAIN - GATT Client deregistration %d\n", gattc_deregister_status);
+
+    // sleep(5);
+
+    // printf("MAIN - 2nd radio state check\n");
+    // radio_state = ACEBT_STATE_DISABLED;
+    // radio_status = aceBT_getRadioState(&radio_state);
+    // printf("MAIN - getRadioState() state:%u status:%d\n", radio_state, radio_status);
+
+    // ace_status_t beaconc_status = aceBT_RegisterBeaconClient(
+    //     bt_session, &beacon_callbacks
+    // );
+    // printf("MAIN - beaconc_status %d\n", beaconc_status);
+
+    // while(!registered_beacon_client) {
+    //     printf("MAIN - Beacon Client not yet registered. Waiting\n");
     //     sleep(5);
     // }
-    sleep(5);
-    printf("Registered as GATT client\n");
+    // printf("MAIN - Beacon Client registered!\n");
 
-    printf("BLE Connection\n");
+    ace_status_t gattc_status = aceBT_bleRegisterGattClient(
+        bt_session, &gatt_client_callback
+    );
+    printf("MAIN - Gatt Client registration %d\n", gattc_status);
+    // ace_status_t gattc_status = aceBt_bleRegisterGattClient(
+    //     bt_session, &gatt_client_callback, ACE_BT_BLE_APPID_GENERIC
+    // );
+
+    // If I don't comment out this bit here, it will hang forever
+    // while(!registered_gatt_client) {
+    //     printf("MAIN - Gatt Client not yet registered. Waiting\n");
+    //     sleep(5);
+    // }
+    // sleep(5);
+    printf("MAIN - Registered as GATT client\n");
+
+    // pthread_t thread1;
+    // pthread_create(&thread1, NULL, gattc_registration, NULL);
+    // pthread_join(thread1, NULL);
+
+    // sleep(10);
+
+    printf("MAIN - BLE Connection\n");
 
     aceBT_bdAddr_t bdaddr;
     char bdaddrStr[] = "2C:CF:67:B8:DC:3F";
 
     if (utilsConvertStrToBdAddr(bdaddrStr, &bdaddr) != ACE_STATUS_OK) {
-        printf("Failed to convert string BT ADDR\n");
+        printf("MAIN - Failed to convert string BT ADDR\n");
         return -1;
     }
 
     aceBt_bleConnParam_t conn_param = ACE_BT_BLE_CONN_PARAM_BALANCED;
     aceBt_bleConnPriority_t conn_priority = ACE_BT_BLE_CONN_PRIO_MEDIUM;
-    bool auto_connect = true;
+    // False or it won't connect to Pico
+    bool auto_connect = false;
 
     ace_status_t connect_status = aceBt_bleConnect(
         bt_session, &bdaddr, conn_param, ACEBT_BLE_GATT_CLIENT_ROLE,
         auto_connect, conn_priority
     );
-    printf("Connection attempt status %d\n", connect_status);
+    printf("MAIN - Connection attempt status %d\n", connect_status);
 
     // pthread_t thread1;
     // pthread_create(&thread1, NULL, ble_connection, NULL);
     // pthread_join(thread1, NULL);
 
-    printf("Sleeping now...\n");
+    printf("MAIN - Sleeping now...\n");
     sleep(5);
 
-    printf("Another sleep...\n");
+    printf("MAIN - Another sleep...\n");
     sleep(5);
+
+    printf("MAIN - Final infinite sleep. Use Ctrl-C to exit\n");
+    sleep(600);
 
     return 0;
 }

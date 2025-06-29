@@ -34,8 +34,8 @@
 
 #include "bluetooth_defines.h"
 #include "bluetooth_session_api.h"
-// #include "bluetooth_log.h"
 #include "bluetooth_common_api.h"
+// #include "bluetooth_log.h"
 
 #ifdef __cplusplus
 extern "C" {

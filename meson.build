@@ -14,16 +14,8 @@ include_dirs = include_directories(
   './src/include/',
 )
 
-cc = meson.get_compiler('cpp')
-
-kindle_root = get_option('kindle_root_dir')
-acebt_dep = declare_dependency(
-  dependencies: cc.find_library('ace_bt', dirs: join_paths(kindle_root, 'usr/lib'), required: true)
-)
-pthread_dep = declare_dependency(
-  dependencies: cc.find_library('pthread', dirs: join_paths(kindle_root, 'usr/lib'), required: true)
-)
-
+acebt_dep = dependency('ace_bt')
+pthread_dep = dependency('pthread')
 
 kindle_bt_api = executable(
   'kindle_bt_api',
@@ -36,6 +28,8 @@ kindle_bt_api = executable(
   cpp_args: '-static-libstdc++',
   link_args: ['-static-libstdc++'],
 )
+
+kindle_root = get_option('kindle_root_dir')
 
 custom_target(
   'clean up libace_bt hard link',

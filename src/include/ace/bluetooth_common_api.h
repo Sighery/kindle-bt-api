@@ -340,13 +340,13 @@ ace_status_t aceBT_getRadioState(aceBT_state_t* p_out_state);
 //  */
 // aceBT_status_t aceBT_readRssi(aceBT_bdAddr_t* p_remote_device);
 
-// /**
-//  * @brief Function for clients to identify if BLE is supported by the current
-//  * Bluetooth adapter.
-//  *
-//  * @return TRUE if BLE is supported by current adapter; FALSE otherwise
-//  */
-// bool aceBT_isBLESupported(void);
+/**
+ * @brief Function for clients to identify if BLE is supported by the current
+ * Bluetooth adapter.
+ *
+ * @return TRUE if BLE is supported by current adapter; FALSE otherwise
+ */
+bool aceBT_isBLESupported(void);
 
 // /** Remote device management APIs */
 

@@ -208,7 +208,7 @@ typedef struct {
  * @deprecated
  * @see aceBt_bleRegisterGattClient
  */
-ace_status_t aceBt_bleRegisterGattClient(
+ace_status_t aceBT_bleRegisterGattClient(
     aceBT_sessionHandle session_handle,
     aceBT_bleGattClientCallbacks_t* callbacks);
 
@@ -231,7 +231,7 @@ ace_status_t aceBt_bleRegisterGattClient(
  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
  * @return @ref ACEBT_STATUS_FAIL for all other errors
  */
-ace_status_t aceBT_bleRegisterGattClient(
+ace_status_t aceBt_bleRegisterGattClient(
     aceBT_sessionHandle session_handle,
     aceBT_bleGattClientCallbacks_t* callbacks, aceBt_bleAppId_t app_id);
 

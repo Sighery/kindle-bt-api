@@ -9,7 +9,7 @@
  * Bluetooth client
  * from here on) on ACE that needs to use Bluetooth based
  * services/communication.
- * A ACE based platfrom may have either Bluetooth dual mode support or Bluetooth
+ * A ACE based platform may have either Bluetooth dual mode support or Bluetooth
  * LE only support.
  * A Bluetooth client can invoke aceBT_getSupportedSession() to find session
  * types
@@ -20,14 +20,14 @@
  * or Bluetooth LE session.
  * If a Bluetooth session is successfully opened, client will receive session
  * handle as
- * output paramter in aceBT_openSession() API.
+ * output parameter in aceBT_openSession() API.
  * Clients should open a Bluetooth session only once until the session is closed
  * via
  * aceBT_closeSession() API.
- * Once the session is opened clients should call into callback registartion
+ * Once the session is opened clients should call into callback registration
  * APIs of
  * bluetooth classic interface and/or Bluetooth LE interface based on the
- * client preference
+ * client preferences
  */
 
 #ifndef BLUETOOTH_SESSION_API_H
@@ -138,8 +138,8 @@ aceBT_sessionType_t aceBT_getSupportedSession(void);
  * @return ACEBT_STATUS_FAIL for all other errors
  */
 ace_status_t aceBT_openSession(aceBT_sessionType_t session_type,
-                                 aceBT_sessionCallbacks_t* callbacks,
-                                 aceBT_sessionHandle* session_handle);
+                               aceBT_sessionCallbacks_t* callbacks,
+                               aceBT_sessionHandle* session_handle);
 
 /**
  * @brief Closes a Bluetooth session for an Application

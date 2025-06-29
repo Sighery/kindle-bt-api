@@ -409,31 +409,31 @@ ace_status_t aceBT_RegisterBeaconClient(aceBT_sessionHandle session_handle,
 //                                      uint8_t num_filter_lists,
 //                                      aceBT_scanInstanceHandle* scan_instance);
 
-// /**
-//  * @brief Interface to request beacon manager to initiate a BLE scan on behalf
-//  * of a client with default settings without any scan filters.\n
-//  * If API returns BT_SUCCESS, a new scaninstance will be created and filled on
-//  * out parameter scan_instance.\n
-//  * This scan instance should be used to control this scan in all
-//  * subsequent calls.\n
-//  * Triggers @ref beacon_scanChangeCallback
-//  *
-//  * @param[in] session_handle This handle should be same as handle returned by
-//  * OpenSession() API
-//  * @param[in] client_id client identification assigned for this client assigned
-//  * by Beacon manager. If no ID is currently assigned, pass 0xFFFF.
-//  * @param[out] scan_instance filled with reference to this scanning instance.
-//  * @return @ref ACEBT_STATUS_SUCCESS if success
-//  * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return @ref ACEBT_STATUS_UNSUPPORTED if does not support BLE
-//  * @return @ref ACEBT_STATUS_FAIL for all other errors
-//  */
-// aceBT_status_t aceBT_startBeaconScanWithDefaultParams(
-//     aceBT_sessionHandle session_handle, aceBT_BeaconClientId client_id,
-//     aceBT_scanInstanceHandle* scan_instance);
+/**
+ * @brief Interface to request beacon manager to initiate a BLE scan on behalf
+ * of a client with default settings without any scan filters.\n
+ * If API returns BT_SUCCESS, a new scaninstance will be created and filled on
+ * out parameter scan_instance.\n
+ * This scan instance should be used to control this scan in all
+ * subsequent calls.\n
+ * Triggers @ref beacon_scanChangeCallback
+ *
+ * @param[in] session_handle This handle should be same as handle returned by
+ * OpenSession() API
+ * @param[in] client_id client identification assigned for this client assigned
+ * by Beacon manager. If no ID is currently assigned, pass 0xFFFF.
+ * @param[out] scan_instance filled with reference to this scanning instance.
+ * @return @ref ACEBT_STATUS_SUCCESS if success
+ * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
+ * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
+ * @return @ref ACEBT_STATUS_UNSUPPORTED if does not support BLE
+ * @return @ref ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_startBeaconScanWithDefaultParams(
+    aceBT_sessionHandle session_handle, aceBT_BeaconClientId client_id,
+    aceBT_scanInstanceHandle* scan_instance);
 
 // /**
 //  * @brief Stops an ongoing BLE Scan\n
