@@ -361,35 +361,35 @@ typedef struct {
     bool continue_decleration;             /**< True for continue decleration */
 } aceBT_bleGattsService_t;
 
-// /** @brief BLE GATT Characteristics record */
-// struct aceBT_gattCharRec_t {
-//     STAILQ_ENTRY(aceBT_gattCharRec_t) link;    /**< Next record */
-//     aceBT_bleGattCharacteristicsValue_t value; /**< Charactieristic value */
-//     bool descriptor_added; /**< True if descriptor is added */
-// };
+/** @brief BLE GATT Characteristics record */
+struct aceBT_gattCharRec_t {
+    STAILQ_ENTRY(aceBT_gattCharRec_t) link;    /**< Next record */
+    aceBT_bleGattCharacteristicsValue_t value; /**< Charactieristic value */
+    bool descriptor_added; /**< True if descriptor is added */
+};
 
-// /** @brief BLE GATT included service record */
-// struct aceBT_gattIncSvcRec_t {
-//     STAILQ_ENTRY(aceBT_gattIncSvcRec_t) link; /**< Next record */
-//     aceBT_bleGattsService_t value;            /**< Charactieristic value */
-// };
+/** @brief BLE GATT included service record */
+struct aceBT_gattIncSvcRec_t {
+    STAILQ_ENTRY(aceBT_gattIncSvcRec_t) link; /**< Next record */
+    aceBT_bleGattsService_t value;            /**< Charactieristic value */
+};
 
-// /** @brief BLE GATT descriptor service record */
-// struct aceBT_gattDecRec_t {
-//     STAILQ_ENTRY(aceBT_gattDecRec_t) link; /**< Next record */
-//     aceBT_bleGattDescriptor_t value;       /**< Charactieristic value */
-// };
+/** @brief BLE GATT descriptor service record */
+struct aceBT_gattDecRec_t {
+    STAILQ_ENTRY(aceBT_gattDecRec_t) link; /**< Next record */
+    aceBT_bleGattDescriptor_t value;       /**< Charactieristic value */
+};
 
-// /** @brief BLE GATT Characteristics */
-// typedef struct {
-//     aceBT_status_t status;              /**< @deprecated Response status*/
-//     int requestId;                      /**< Request ID for the response */
-//     aceBT_bleGattBlobValue_t blobValue; /**< Blob value */
-//     uint8_t errorStatus;                /**< General GATT Error Status */
-// } __attribute__((packed)) aceBT_bleGattResp_t;
+/** @brief BLE GATT Characteristics */
+typedef struct {
+    ace_status_t status;              /**< @deprecated Response status*/
+    int requestId;                      /**< Request ID for the response */
+    aceBT_bleGattBlobValue_t blobValue; /**< Blob value */
+    uint8_t errorStatus;                /**< General GATT Error Status */
+} __attribute__((packed)) aceBT_bleGattResp_t;
 
-// /** @} */
-// /** @} */
+/** @} */
+/** @} */
 
 #ifdef __cplusplus
 }

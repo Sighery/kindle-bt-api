@@ -18,8 +18,6 @@
 #include "core/defines.h"
 
 
-
-
 #define ADDR_WITH_COLON_LEN 17
 #define ADDR_WITHOUT_COLON_LEN 12
 #define PRINT_UUID_STR_LEN 49
@@ -29,7 +27,11 @@ aceBT_sessionHandle bt_session = NULL;
 aceBT_bleConnHandle ble_conn_handle = NULL;
 bool registered_ble = false;
 bool registered_beacon_client = false;
+// Actually never used since the callback never gets called
 bool registered_gatt_client = false;
+
+uint32_t gNo_svc;
+aceBT_bleGattsService_t* pGgatt_service = NULL;
 
 /** Callback for PIN request */
 void aceBt_pinRequestCallback(
@@ -360,7 +362,7 @@ void aceBt_bleGattcReadCharsCallback(
     printf("connHandle %p\n", connHandle);
 
     // char buff[256];
-    // aceBtCli_utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
     // CLI_LOG("UUID:: %s", buff);
 
     // for (int idx = 0; idx < charsValue.blobValue.size; idx++)
@@ -398,7 +400,7 @@ void aceBt_bleGattcNotifyCharsCallback(
     printf("CLI callback : %s()\n", __func__);
     printf("connHandle %p\n", connHandle);
     // char buff[256];
-    // aceBtCli_utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
     // CLI_LOG("UUID:: %s", buff);
     // for (int idx = 0; idx < charsValue.blobValue.size; idx++)
     //     CLI_LOG("%x", charsValue.blobValue.data[idx]);
@@ -432,7 +434,7 @@ void aceBt_bleGattcReadDescCallback(
     );
 
     // char buff[256];
-    // aceBtCli_utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
     // CLI_LOG("Char UUID:: %s", buff);
 
     // /* Make sure data is not null before printing */
@@ -450,30 +452,98 @@ void aceBt_bleGattcReadDescCallback(
     // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_READ_DESC_CB);
 }
 
+void utilsPrintUuid(char* uuid_str, aceBT_uuid_t* uuid, int max) {
+    snprintf(uuid_str, max,
+             "%02x %02x %02x %02x %02x %02x %02x %02x %02x"
+             " %02x %02x %02x %02x %02x %02x %02x ",
+             uuid->uu[0], uuid->uu[1], uuid->uu[2], uuid->uu[3], uuid->uu[4],
+             uuid->uu[5], uuid->uu[6], uuid->uu[7], uuid->uu[8], uuid->uu[9],
+             uuid->uu[10], uuid->uu[11], uuid->uu[12], uuid->uu[13],
+             uuid->uu[14], uuid->uu[15]);
+}
+
+void aceBt_utilsDumpServer(aceBT_bleGattsService_t* server) {
+    if (!server)
+        return;
+
+    struct list_head* svc_list;
+    struct list_head* char_list;
+    int inc_svc_count = 0;
+    char buff[PRINT_UUID_STR_LEN];
+    memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+    utilsPrintUuid(buff, &server->uuid, PRINT_UUID_STR_LEN);
+    printf("Service 0 uuid %s serviceType %d\n", buff, server->serviceType);
+
+    struct aceBT_gattIncSvcRec_t* svc_rec;
+    STAILQ_FOREACH(svc_rec, &server->incSvcList, link) {
+        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+        utilsPrintUuid(buff, &svc_rec->value.uuid, PRINT_UUID_STR_LEN);
+        printf(
+            "Included Services %d service Type %d uuid %s\n",
+            inc_svc_count++, svc_rec->value.serviceType, buff
+        );
+    }
+    uint8_t char_count = 0;
+    struct aceBT_gattCharRec_t* char_rec = NULL;
+    STAILQ_FOREACH(char_rec, &server->charsList, link) {
+        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+        utilsPrintUuid(buff, &char_rec->value.gattRecord.uuid, PRINT_UUID_STR_LEN);
+        if (char_rec->value.gattDescriptor.is_notify && char_rec->value.gattDescriptor.is_set
+        ) {
+            printf(
+                "\tGatt Characteristics with Notifications %d uuid %s\n",
+                char_count++, buff
+            );
+        } else {
+            printf("\tGatt Characteristics %d uuid %s\n", char_count++, buff);
+        }
+
+        if (char_rec->value.gattDescriptor.is_set) {
+            utilsPrintUuid(
+                buff, &char_rec->value.gattDescriptor.gattRecord.uuid,
+                PRINT_UUID_STR_LEN
+            );
+            printf("\t\tDescriptor UUID %s\n", buff);
+
+        } else if (char_rec->value.multiDescCount) {
+            uint8_t desc_num = 1;
+            struct aceBT_gattDescRec_t* desc_rec = NULL;
+            /* Traverse descriptor linked list */
+            STAILQ_FOREACH(desc_rec, &char_rec->value.descList, link) {
+                utilsPrintUuid(
+                    buff, &desc_rec->value.gattRecord.uuid,
+                    PRINT_UUID_STR_LEN
+                );
+                printf("\t\tDescriptor %d UUID %s\n", desc_num++, buff);
+            }
+        }
+    }
+}
+
 void aceBt_bleGattcGetDbCallback(aceBT_bleConnHandle connHandle,
-                                    aceBT_bleGattsService_t* gatt_service,
-                                    uint32_t no_svc) {
+                                 aceBT_bleGattsService_t* gatt_service,
+                                 uint32_t no_svc) {
     printf("CLI callback : aceBt_bleGattcGetDbCallback()\n");
     printf("connHandle %p no_svc %" PRIu32 "\n", connHandle, no_svc);
-    // connection_handle = connHandle;
-    // gNo_svc = no_svc;
-    // ace_status_t status =
-    //     aceBT_bleCloneGattService(&pGgatt_service, gatt_service, gNo_svc);
-    // if (status == ACE_STATUS_OK) {
-    //     for (uint32_t i = 0; i < no_svc; i++) {
-    //         CLI_LOG("Gatt Database index :%" PRIu32 " %p ", i,
-    //                 &pGgatt_service[i]);
-    //         aceBtCli_utilsDumpServer(&pGgatt_service[i]);
-    //     }
+    gNo_svc = no_svc;
+    ace_status_t status = aceBT_bleCloneGattService(&pGgatt_service, gatt_service, gNo_svc);
+    if (status == ACE_STATUS_OK) {
+        for (uint32_t i = 0; i < no_svc; i++) {
+            printf(
+                "Gatt Database index :%" PRIu32 " %p \n",
+                i, &pGgatt_service[i]
+            );
+            aceBt_utilsDumpServer(&pGgatt_service[i]);
+        }
 
-    //     if (callback_vars.gattc_svc_discovered && (no_svc > 0)) {
-    //         CLI_SET_CB_VAR(callback_vars.got_gatt_db, true);
-    //     }
+        // if (callback_vars.gattc_svc_discovered && (no_svc > 0)) {
+        //     CLI_SET_CB_VAR(callback_vars.got_gatt_db, true);
+        // }
 
-    //     CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_GET_DB_CB);
-    // } else {
-    //     CLI_LOG("Error copying GATT database %d", status);
-    // }
+        // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_GET_DB_CB);
+    } else {
+        printf("Error copying GATT database %d\n", status);
+    }
 }
 
 void aceBt_bleGattcExecuteWriteCallback(aceBT_bleConnHandle connHandle,
@@ -776,6 +846,14 @@ int main() {
         auto_connect, conn_priority
     );
     printf("MAIN - Connection attempt status %d\n", connect_status);
+    while(ble_conn_handle == NULL) {
+        printf("MAIN - Still not connected to BLE device. Waiting...\n");
+        sleep(2);
+    }
+
+    printf("MAIN - Get BLE DB\n");
+    ace_status_t bledb_status = aceBT_bleGetService(ble_conn_handle);
+    printf("MAIN - Get BLE DB status %d\n", bledb_status);
 
     // pthread_t thread1;
     // pthread_create(&thread1, NULL, ble_connection, NULL);

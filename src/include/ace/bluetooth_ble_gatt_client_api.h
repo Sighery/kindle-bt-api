@@ -308,21 +308,21 @@ ace_status_t aceBT_bleDeRegisterGattClient(
 // ace_status_t aceBT_bleGetServiceByUuid(aceBT_bleConnHandle conn_handle,
 //                                          aceBT_uuid_t uuid);
 
-// /**
-//  * @brief  API to get the discovered service and filter the primary service\n
-//  * This api will return the service discovered list only if
-//  * @ref on_ble_gattc_service_discovered_callback returns success\n
-//  * Triggers @ref on_ble_gattc_get_gatt_db_callback
-//  *
-//  * @param[in] conn_handle connection handle
-//  * @return @ref ACEBT_STATUS_SUCCESS if success
-//  * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return @ref ACEBT_STATUS_FAIL for all other errors
-//  */
-// ace_status_t aceBT_bleGetService(aceBT_bleConnHandle conn_handle);
+/**
+ * @brief  API to get the discovered service and filter the primary service\n
+ * This api will return the service discovered list only if
+ * @ref on_ble_gattc_service_discovered_callback returns success\n
+ * Triggers @ref on_ble_gattc_get_gatt_db_callback
+ *
+ * @param[in] conn_handle connection handle
+ * @return @ref ACEBT_STATUS_SUCCESS if success
+ * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
+ * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
+ * @return @ref ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_bleGetService(aceBT_bleConnHandle conn_handle);
 
 // /**
 //  * @brief API to read GATT characteristics value from the server.
@@ -548,24 +548,24 @@ ace_status_t aceBT_bleDeRegisterGattClient(
 // ace_status_t aceBT_bleCleanupGattService(aceBT_bleGattsService_t* service,
 //                                            int no_svc);
 
-// /**
-//  * @brief  API to copy GATT service(s)
-//  *
-//  * @param[out] dst_gatt_service destination GATT service pointer
-//  * @param[in] src_gatt_service source GATT service pointer
-//  * @param[in] no_svc number of services to be copied
-//  * @return ACEBT_STATUS_SUCCESS if success
-//  * @return ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return ACEBT_STATUS_FAIL for all other errors
-//  */
-// extern ace_status_t aceBT_bleCloneGattService(
-//     aceBT_bleGattsService_t** dst_gatt_service,
-//     const aceBT_bleGattsService_t* src_gatt_service, int no_svc);
+/**
+ * @brief  API to copy GATT service(s)
+ *
+ * @param[out] dst_gatt_service destination GATT service pointer
+ * @param[in] src_gatt_service source GATT service pointer
+ * @param[in] no_svc number of services to be copied
+ * @return ACEBT_STATUS_SUCCESS if success
+ * @return ACEBT_STATUS_NOMEM if ran out of memory
+ * @return ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return ACEBT_STATUS_NOT_READY if server is not ready
+ * @return ACEBT_STATUS_FAIL for all other errors
+ */
+extern ace_status_t aceBT_bleCloneGattService(
+    aceBT_bleGattsService_t** dst_gatt_service,
+    const aceBT_bleGattsService_t* src_gatt_service, int no_svc);
 
-// /** @} */
+/** @} */
 
 #ifdef __cplusplus
 }
