@@ -62,26 +62,6 @@ typedef enum {
     ACEBT_BLE_STATE_DISCONNECTED = 3,  /**< BLE State Disconnected*/
 } aceBT_bleConnState_t;
 
-// /**
-//  * @brief BLE connection priority set as part of Connection parameter update
-//  * @deprecated
-//  * @see aceBT_bleConnParam_t
-//  */
-// typedef enum {
-//     /** Priority critical : High priority, ultra-low latency param. This should
-//      * be used to transfer large amount of data quickly. Applications should
-//      * switch to @ref ACEBT_BLE_CONN_PRIORITY_BALANCED or
-//      * @ref ACEBT_BLE_CONN_PRIORITY_LOW once done. */
-//     ACEBT_BLE_CONN_PRIORITY_CRITICAL = 0,
-//     /** Priority high : high priority, low latency param */
-//     ACEBT_BLE_CONN_PRIORITY_HIGH = 1,
-//     /** Priority balanced : Uses default conn param recommended by Bluetooth SIG
-//      */
-//     ACEBT_BLE_CONN_PRIORITY_BALANCED = 2,
-//     /** Priority low : Low power, high latency param */
-//     ACEBT_BLE_CONN_PRIORITY_LOW = 3
-// } aceBT_bleConnPriority_t;
-
 /** @brief BLE connection parameter set as part of Connection parameter update
  */
 typedef enum {
@@ -147,18 +127,18 @@ typedef enum {
     ACEBT_BLE_SOCKET = 1            /**< LE Socket role */
 } aceBT_bleConnRole_t;
 
-// /** @brief BLE GATT discovery type */
-// typedef enum {
-//     ACEBT_GATT_DISC_SRVC_ALL = 1,     /**< Discover all services */
-//     ACEBT_GATT_DISC_SRVC_BY_UUID = 2, /**< Discover service of a special type */
-//     ACEBT_GATT_DISC_INC_SRVC = 3,    /**< Discover the included service within a
-//                                     service */
-//     ACEBT_GATT_DISC_CHAR = 4,        /**< Discover characteristics of a service
-//                                     with/without type requirement */
-//     ACEBT_GATT_DISC_CHAR_DSCPT = 5,  /**< Discover characteristic descriptors of
-//                                     a character */
-//     ACEBT_GATT_DISC_TYPE_INVALID = 6 /**< Maximum discover type */
-// } aceBT_bleGattDiscoveryType;
+/** @brief BLE GATT discovery type */
+typedef enum {
+    ACEBT_GATT_DISC_SRVC_ALL = 1,     /**< Discover all services */
+    ACEBT_GATT_DISC_SRVC_BY_UUID = 2, /**< Discover service of a special type */
+    ACEBT_GATT_DISC_INC_SRVC = 3,    /**< Discover the included service within a
+                                    service */
+    ACEBT_GATT_DISC_CHAR = 4,        /**< Discover characteristics of a service
+                                    with/without type requirement */
+    ACEBT_GATT_DISC_CHAR_DSCPT = 5,  /**< Discover characteristic descriptors of
+                                    a character */
+    ACEBT_GATT_DISC_TYPE_INVALID = 6 /**< Maximum discover type */
+} aceBT_bleGattDiscoveryType;
 
 /** @brief BLE GATT status */
 typedef enum {
@@ -185,80 +165,80 @@ typedef enum {
     ACEBT_GATT_STATUS_INSUFFICIENT_RESOURCES = 13, /**< Not enough resources */
 } aceBT_gattStatus_t;
 
-// /**
-//  * @name GATT characteristic properties
-//  * @{
-//  */
-// #define ACEBT_BLE_GATT_PROP_BROADCAST 0x0001 /**< Broadcast property */
-// #define ACEBT_BLE_GATT_PROP_READ 0x0002      /**< Read only property */
-// #define ACEBT_BLE_GATT_PROP_WRITE_NO_RESPONSE \
-//     0x0004 /**< Write but no reponse for the write property*/
-// #define ACEBT_BLE_GATT_PROP_WRITE 0x0008          /**< Write property */
-// #define ACEBT_BLE_GATT_PROP_NOTIFY 0x0010         /**< Notify property */
-// #define ACEBT_BLE_GATT_PROP_INDICATE 0x0020       /**< Indicate property */
-// #define ACEBT_BLE_GATT_PROP_SIGNED_WRITE 0x0040   /**< Signed write property */
-// #define ACEBT_BLE_GATT_PROP_EXTENDED_PROPS 0x0080 /**< Exitended properties */
-// /** @} */
+/**
+ * @name GATT characteristic properties
+ * @{
+ */
+#define ACEBT_BLE_GATT_PROP_BROADCAST 0x0001 /**< Broadcast property */
+#define ACEBT_BLE_GATT_PROP_READ 0x0002      /**< Read only property */
+#define ACEBT_BLE_GATT_PROP_WRITE_NO_RESPONSE \
+    0x0004 /**< Write but no reponse for the write property*/
+#define ACEBT_BLE_GATT_PROP_WRITE 0x0008          /**< Write property */
+#define ACEBT_BLE_GATT_PROP_NOTIFY 0x0010         /**< Notify property */
+#define ACEBT_BLE_GATT_PROP_INDICATE 0x0020       /**< Indicate property */
+#define ACEBT_BLE_GATT_PROP_SIGNED_WRITE 0x0040   /**< Signed write property */
+#define ACEBT_BLE_GATT_PROP_EXTENDED_PROPS 0x0080 /**< Exitended properties */
+/** @} */
 
-// /**
-//  * @name GATT permissions
-//  * @{
-//  */
-// /** Readable attribute */
-// #define ACEBT_BLE_GATT_PERM_READ 0x0001
-// /** Encrypted Readable attribute */
-// #define ACEBT_BLE_GATT_PERM_READ_ENCRYPTED 0x0002
-// /** Encrypted Readable attribute that requires authentication*/
-// #define ACEBT_BLE_GATT_PERM_READ_ENCRYPTED_MITM 0x0004
-// /** Writable attribute */
-// #define ACEBT_BLE_GATT_PERM_WRITE 0x0010
-// /** Encrypted writable attribute */
-// #define ACEBT_BLE_GATT_PERM_WRITE_ENCRYPTED 0x0020
-// /** Encrypted writable attribute that requires authentication*/
-// #define ACEBT_BLE_GATT_PERM_WRITE_ENCRYPTED_MITM 0x0040
-// /** Writable signed attribute */
-// #define ACEBT_BLE_GATT_PERM_WRITE_SIGNED 0x0080
-// /** Encrypted writable signed attribute that requires authentication*/
-// #define ACEBT_BLE_GATT_PERM_WRITE_SIGNED_MITM 0x0100
-// /** @} */
+/**
+ * @name GATT permissions
+ * @{
+ */
+/** Readable attribute */
+#define ACEBT_BLE_GATT_PERM_READ 0x0001
+/** Encrypted Readable attribute */
+#define ACEBT_BLE_GATT_PERM_READ_ENCRYPTED 0x0002
+/** Encrypted Readable attribute that requires authentication*/
+#define ACEBT_BLE_GATT_PERM_READ_ENCRYPTED_MITM 0x0004
+/** Writable attribute */
+#define ACEBT_BLE_GATT_PERM_WRITE 0x0010
+/** Encrypted writable attribute */
+#define ACEBT_BLE_GATT_PERM_WRITE_ENCRYPTED 0x0020
+/** Encrypted writable attribute that requires authentication*/
+#define ACEBT_BLE_GATT_PERM_WRITE_ENCRYPTED_MITM 0x0040
+/** Writable signed attribute */
+#define ACEBT_BLE_GATT_PERM_WRITE_SIGNED 0x0080
+/** Encrypted writable signed attribute that requires authentication*/
+#define ACEBT_BLE_GATT_PERM_WRITE_SIGNED_MITM 0x0100
+/** @} */
 
-// /**
-//  * @name Write types
-//  * @{
-//  */
-// /** Write type*/
-// #define ACEBT_BLE_WRITE_TYPE_NO_RESPONSE 0x0001
-// #define ACEBT_BLE_WRITE_TYPE_DEFAULT 0x0002
-// #define ACEBT_BLE_WRITE_TYPE_SIGNED 0x0004
-// /** @} */
+/**
+ * @name Write types
+ * @{
+ */
+/** Write type*/
+#define ACEBT_BLE_WRITE_TYPE_NO_RESPONSE 0x0001
+#define ACEBT_BLE_WRITE_TYPE_DEFAULT 0x0002
+#define ACEBT_BLE_WRITE_TYPE_SIGNED 0x0004
+/** @} */
 
-// /**
-//  * @name Attribute format
-//  * @brief Attribute form used for @ref aceBT_bleGattAttributeFormat
-//  * @{
-//  */
-// /** BLE attribute data format*/
-// #define ACEBT_BLE_FORMAT_UINT8 0x11
-// #define ACEBT_BLE_FORMAT_UINT16 0x12
-// #define ACEBT_BLE_FORMAT_UINT32 0x14
+/**
+ * @name Attribute format
+ * @brief Attribute form used for @ref aceBT_bleGattAttributeFormat
+ * @{
+ */
+/** BLE attribute data format*/
+#define ACEBT_BLE_FORMAT_UINT8 0x11
+#define ACEBT_BLE_FORMAT_UINT16 0x12
+#define ACEBT_BLE_FORMAT_UINT32 0x14
 
-// #define ACEBT_BLE_FORMAT_SINT8 0x21
-// #define ACEBT_BLE_FORMAT_SINT16 0x22
-// #define ACEBT_BLE_FORMAT_SINT32 0x24
+#define ACEBT_BLE_FORMAT_SINT8 0x21
+#define ACEBT_BLE_FORMAT_SINT16 0x22
+#define ACEBT_BLE_FORMAT_SINT32 0x24
 
-// #define ACEBT_BLE_FORMAT_SFLOAT 0x32
-// #define ACEBT_BLE_FORMAT_FLOAT 0x34
-// #define ACEBT_BLE_FORMAT_BLOB 0xFF
-// /** @} */
+#define ACEBT_BLE_FORMAT_SFLOAT 0x32
+#define ACEBT_BLE_FORMAT_FLOAT 0x34
+#define ACEBT_BLE_FORMAT_BLOB 0xFF
+/** @} */
 
-// /**
-//  * @name Authentication mode
-//  * @{
-//  */
-// #define AUTHENTICATION_NONE 0    /**< No authentication */
-// #define AUTHENTICATION_NO_MITM 1 /**< Authentication with no MITM*/
-// #define AUTHENTICATION_MITM 2    /**< Authentication with MITM*/
-// /** @} */
+/**
+ * @name Authentication mode
+ * @{
+ */
+#define AUTHENTICATION_NONE 0    /**< No authentication */
+#define AUTHENTICATION_NO_MITM 1 /**< Authentication with no MITM*/
+#define AUTHENTICATION_MITM 2    /**< Authentication with MITM*/
+/** @} */
 
 /** @brief BLE Attribute permission */
 typedef uint16_t aceBT_bleGattAttributePermission;

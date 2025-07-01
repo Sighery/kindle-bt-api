@@ -324,62 +324,62 @@ ace_status_t aceBT_bleDeRegisterGattClient(
  */
 ace_status_t aceBT_bleGetService(aceBT_bleConnHandle conn_handle);
 
-// /**
-//  * @brief API to read GATT characteristics value from the server.
-//  * The read will be performed on the server for the requested gattRecord.uuid
-//  * in @ref aceBT_bleGattCharacteristicsValue_t upon receiving the data.\n
-//  * @ref on_ble_gattc_read_characteristics_callback will be invoked to notify the
-//  * the application.\n
-//  * Reading Blob Value:
-//  * It may not be possible to read the complete blob in one request. It would be
-//  * required to pass the offset received so far in blobValue.offset of @ref
-//  * aceBT_bleGattCharacteristicsValue_t for the same uuid
-//  *
-//  * @param[in] session_handle session handle for the GATT client session
-//  * @param[in] conn_handle connection handle
-//  * @param[in] chars_value GATT characteristics value
-//  * @return @ref ACEBT_STATUS_SUCCESS if success
-//  * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return @ref ACEBT_STATUS_FAIL for all other errors
-//  */
-// ace_status_t aceBT_bleReadCharacteristics(
-//     aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
-//     aceBT_bleGattCharacteristicsValue_t chars_value);
+/**
+ * @brief API to read GATT characteristics value from the server.
+ * The read will be performed on the server for the requested gattRecord.uuid
+ * in @ref aceBT_bleGattCharacteristicsValue_t upon receiving the data.\n
+ * @ref on_ble_gattc_read_characteristics_callback will be invoked to notify the
+ * the application.\n
+ * Reading Blob Value:
+ * It may not be possible to read the complete blob in one request. It would be
+ * required to pass the offset received so far in blobValue.offset of @ref
+ * aceBT_bleGattCharacteristicsValue_t for the same uuid
+ *
+ * @param[in] session_handle session handle for the GATT client session
+ * @param[in] conn_handle connection handle
+ * @param[in] chars_value GATT characteristics value
+ * @return @ref ACEBT_STATUS_SUCCESS if success
+ * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
+ * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
+ * @return @ref ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_bleReadCharacteristics(
+    aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
+    aceBT_bleGattCharacteristicsValue_t chars_value);
 
-// /**
-//  * @brief API to write GATT characteristics value to the GATT server.
-//  * Write will be performed on the server for the uuid that is passed in
-//  * gattRecord.uuid in @ref aceBT_bleGattCharacteristicsValue_t upon completion
-//  * of the write based on the property of the attribute @ref
-//  * on_ble_write_characteristics_callback will be invoked to notify the same to
-//  * application\n
-//  * The write property property gattRecord.attProp in @ref
-//  * aceBT_bleGattCharacteristicsValue_t\n
-//  *
-//  * Reading Blob Value:
-//  * It may not be possible to write the complete blob in one request. It would be
-//  * required to pass the offset received so far in blobValue.offset in @ref
-//  * aceBT_bleGattCharacteristicsValue_t for the same handle
-//  * characteristicsValue.handle @ref aceBT_bleGattCharacteristicsValue_t.
-//  *
-//  * @param[in] session_handle session handle for the GATT client session
-//  * @param[in] conn_handle connection handle
-//  * @param[in] chars_value GATT characteristics value
-//  * @param[in] request_type Request type
-//  * @return @ref ACEBT_STATUS_SUCCESS if success
-//  * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return @ref ACEBT_STATUS_FAIL for all other errors
-//  */
-// ace_status_t aceBT_bleWriteCharacteristics(
-//     aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
-//     aceBT_bleGattCharacteristicsValue_t* chars_value,
-//     aceBT_responseType_t request_type);
+/**
+ * @brief API to write GATT characteristics value to the GATT server.
+ * Write will be performed on the server for the uuid that is passed in
+ * gattRecord.uuid in @ref aceBT_bleGattCharacteristicsValue_t upon completion
+ * of the write based on the property of the attribute @ref
+ * on_ble_write_characteristics_callback will be invoked to notify the same to
+ * application\n
+ * The write property property gattRecord.attProp in @ref
+ * aceBT_bleGattCharacteristicsValue_t\n
+ *
+ * Reading Blob Value:
+ * It may not be possible to write the complete blob in one request. It would be
+ * required to pass the offset received so far in blobValue.offset in @ref
+ * aceBT_bleGattCharacteristicsValue_t for the same handle
+ * characteristicsValue.handle @ref aceBT_bleGattCharacteristicsValue_t.
+ *
+ * @param[in] session_handle session handle for the GATT client session
+ * @param[in] conn_handle connection handle
+ * @param[in] chars_value GATT characteristics value
+ * @param[in] request_type Request type
+ * @return @ref ACEBT_STATUS_SUCCESS if success
+ * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
+ * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
+ * @return @ref ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_bleWriteCharacteristics(
+    aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
+    aceBT_bleGattCharacteristicsValue_t* chars_value,
+    aceBT_responseType_t request_type);
 
 // /**
 //  * @brief API to read descriptor characteristics value from the server.

@@ -13,6 +13,7 @@
 #include "ace/bluetooth_ble_api.h"
 #include "ace/bluetooth_ble_gatt_client_api.h"
 #include "ace/bluetooth_beacon_api.h"
+#include "ace/osal_alloc.h"
 // #include "bluetooth_manager_ble_gattc_util.h"
 
 #include "core/defines.h"
@@ -29,6 +30,7 @@ bool registered_ble = false;
 bool registered_beacon_client = false;
 // Actually never used since the callback never gets called
 bool registered_gatt_client = false;
+bool pico_led_status = false;
 
 uint32_t gNo_svc;
 aceBT_bleGattsService_t* pGgatt_service = NULL;
@@ -179,6 +181,102 @@ ace_status_t utilsConvertStrToBdAddr(char* str, aceBT_bdAddr_t* pAddr) {
     return ACE_STATUS_OK;
 }
 
+void utilsPrintUuid(char* uuid_str, aceBT_uuid_t* uuid, int max) {
+    snprintf(
+        uuid_str, max,
+        "%02x %02x %02x %02x %02x %02x %02x %02x %02x"
+        " %02x %02x %02x %02x %02x %02x %02x",
+        uuid->uu[0], uuid->uu[1], uuid->uu[2], uuid->uu[3], uuid->uu[4],
+        uuid->uu[5], uuid->uu[6], uuid->uu[7], uuid->uu[8], uuid->uu[9],
+        uuid->uu[10], uuid->uu[11], uuid->uu[12], uuid->uu[13],
+        uuid->uu[14], uuid->uu[15]
+    );
+}
+
+void aceBt_utilsDumpServer(aceBT_bleGattsService_t* server) {
+    if (!server)
+        return;
+
+    struct list_head* svc_list;
+    struct list_head* char_list;
+    int inc_svc_count = 0;
+    char buff[PRINT_UUID_STR_LEN];
+    memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+    utilsPrintUuid(buff, &server->uuid, PRINT_UUID_STR_LEN);
+    printf("Service 0 uuid %s serviceType %d\n", buff, server->serviceType);
+
+    struct aceBT_gattIncSvcRec_t* svc_rec;
+    STAILQ_FOREACH(svc_rec, &server->incSvcList, link) {
+        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+        utilsPrintUuid(buff, &svc_rec->value.uuid, PRINT_UUID_STR_LEN);
+        printf(
+            "Included Services %d service Type %d uuid %s\n",
+            inc_svc_count++, svc_rec->value.serviceType, buff
+        );
+    }
+    uint8_t char_count = 0;
+    struct aceBT_gattCharRec_t* char_rec = NULL;
+    STAILQ_FOREACH(char_rec, &server->charsList, link) {
+        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
+        utilsPrintUuid(buff, &char_rec->value.gattRecord.uuid, PRINT_UUID_STR_LEN);
+        if (char_rec->value.gattDescriptor.is_notify && char_rec->value.gattDescriptor.is_set
+        ) {
+            printf(
+                "\tGatt Characteristics with Notifications %d uuid %s\n",
+                char_count++, buff
+            );
+        } else {
+            printf("\tGatt Characteristics %d uuid %s\n", char_count++, buff);
+        }
+
+        if (char_rec->value.gattDescriptor.is_set) {
+            utilsPrintUuid(
+                buff, &char_rec->value.gattDescriptor.gattRecord.uuid,
+                PRINT_UUID_STR_LEN
+            );
+            printf("\t\tDescriptor UUID %s\n", buff);
+
+        } else if (char_rec->value.multiDescCount) {
+            uint8_t desc_num = 1;
+            struct aceBT_gattDescRec_t* desc_rec = NULL;
+            /* Traverse descriptor linked list */
+            STAILQ_FOREACH(desc_rec, &char_rec->value.descList, link) {
+                utilsPrintUuid(
+                    buff, &desc_rec->value.gattRecord.uuid,
+                    PRINT_UUID_STR_LEN
+                );
+                printf("\t\tDescriptor %d UUID %s\n", desc_num++, buff);
+            }
+        }
+    }
+}
+
+struct aceBT_gattCharRec_t* utilsFindCharRec(
+    aceBT_uuid_t uuid, uint8_t uuid_len
+) {
+    struct aceBT_gattCharRec_t* char_rec = NULL;
+
+    if (!pGgatt_service) {
+        printf("GATT DB has not been populated yet!\n");
+        return (NULL);
+    }
+
+    // Iterate through all services
+    for (uint32_t i = 0; i < gNo_svc; i++) {
+        aceBT_bleGattsService_t* services = &pGgatt_service[i];
+
+        // Iterate through all characteristics and look for char uuid
+        STAILQ_FOREACH(char_rec, &services->charsList, link) {
+            // If char uuid matches, read characteristic
+            if (!memcmp(char_rec->value.gattRecord.uuid.uu, &uuid.uu, uuid_len)) {
+                return (char_rec);
+            }
+        }
+    }
+    printf("GATT Characteristic UUID could not be found!\n");
+    return (NULL);
+}
+
 /** Remote device bond state callback */
 void aceBt_bondStateCallback(
     ace_status_t status, aceBT_bdAddr_t* p_remote_addr, aceBT_bondState_t state
@@ -271,6 +369,7 @@ void aceBt_bleConnStateChangedCallback(
     // }
 }
 
+// Never actually called/used
 void aceBt_bleGattcRegCallback(ace_status_t status) {
     printf("aceBt_bleGattcRegCallback\n");
     printf("state %d\n", status);
@@ -359,14 +458,50 @@ void aceBt_bleGattcReadCharsCallback(
         "CLI callback : aceBtCli_bleGattcReadCharsCallback() status: %d\n",
         status
     );
-    printf("connHandle %p\n", connHandle);
+    printf("aceBtCli_bleGattcReadCharsCallback - connHandle %p\n", connHandle);
 
-    // char buff[256];
-    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
-    // CLI_LOG("UUID:: %s", buff);
+    char buff[256];
+    utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    printf("aceBtCli_bleGattcReadCharsCallback - Characteristic UUID:: %s\n", buff);
 
-    // for (int idx = 0; idx < charsValue.blobValue.size; idx++)
-    //     CLI_LOG("%02x", charsValue.blobValue.data[idx]);
+    printf("aceBtCli_bleGattcReadCharsCallback - Characteristic value: ");
+    for (int idx = 0; idx < charsValue.blobValue.size; idx++)
+        printf("%02x", charsValue.blobValue.data[idx]);
+    printf("\n");
+
+    // Remove this for final release. This is just for my Pico LED usecase
+    printf("aceBtCli_bleGattcReadCharsCallback - Test char casting: %s\n", (char*) charsValue.blobValue.data);
+
+    uint8_t pico_char_uuid[] = {
+        0xff, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+    // char pico_char_uuid_str[] = "ff 12 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+    // utilsConvertHexStrToByteArray(pico_char_uuid_str, pico_char_uuid);
+    printf("Compare %d\n", memcmp(&charsValue.gattRecord.uuid.uu, pico_char_uuid, sizeof(&charsValue.gattRecord.uuid.uu)));
+    if (!memcmp(&charsValue.gattRecord.uuid.uu, pico_char_uuid, sizeof(&charsValue.gattRecord.uuid.uu))) {
+        // Otherwise I get extra values from previous run? Like ONF
+        char ledstatus[512] = {0};
+        memcpy(ledstatus, charsValue.blobValue.data, charsValue.blobValue.size);
+        printf("aceBtCli_bleGattcReadCharsCallback - Characteristic value str: %s\n", ledstatus);
+
+        if (!strcmp(ledstatus, "ON")) {
+            printf("aceBtCli_bleGattcReadCharsCallback - Pico LED is on!\n");
+            pico_led_status = true;
+        } else if (!strcmp(ledstatus, "OFF")) {
+            printf("aceBtCli_bleGattcReadCharsCallback - Pico LED is off!\n");
+            pico_led_status = false;
+        } else {
+            printf("Not matched any of the two LED statuses?");
+        }
+        // char* ledstatus_str;
+        // for (int idx = 0; idx < charsValue.blobValue.size; idx++) {
+        //     // sprintf(ledstatus_str + strlen(ledstatus_str), "%02x", charsValue.blobValue.data[idx]);
+        // }
+        // printf("Final buffer value is: %s\n", ledstatus_str);
+    }
+
+    // memset(charsValue.blobValue.data, 0, strlen(ledstatus));
 
     // if (status == ACE_STATUS_OK) {
     //     CLI_SET_CB_VAR(callback_vars.gattc_read_chars, true);
@@ -433,16 +568,16 @@ void aceBt_bleGattcReadDescCallback(
         status, connHandle
     );
 
-    // char buff[256];
-    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
-    // CLI_LOG("Char UUID:: %s", buff);
+    char buff[256];
+    utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    printf("Char UUID:: %s\n", buff);
 
-    // /* Make sure data is not null before printing */
-    // if (charsValue.blobValue.data != NULL) {
-    //     if (sprintf(buff, "%x", *(uint8_t*)charsValue.blobValue.data) > 0) {
-    //         CLI_LOG("Descriptor Value is: %s", buff);
-    //     }
-    // }
+    /* Make sure data is not null before printing */
+    if (charsValue.blobValue.data != NULL) {
+        if (sprintf(buff, "%x", *(uint8_t*)charsValue.blobValue.data) > 0) {
+            printf("Descriptor Value is: %s\n", buff);
+        }
+    }
 
     // if (status == ACE_STATUS_OK) {
     //     CLI_SET_CB_VAR(callback_vars.gattc_read_desc, true);
@@ -452,73 +587,7 @@ void aceBt_bleGattcReadDescCallback(
     // CLI_SEM_POST(sync_cmd_sem, ACEBT_CLI_BLE_READ_DESC_CB);
 }
 
-void utilsPrintUuid(char* uuid_str, aceBT_uuid_t* uuid, int max) {
-    snprintf(uuid_str, max,
-             "%02x %02x %02x %02x %02x %02x %02x %02x %02x"
-             " %02x %02x %02x %02x %02x %02x %02x ",
-             uuid->uu[0], uuid->uu[1], uuid->uu[2], uuid->uu[3], uuid->uu[4],
-             uuid->uu[5], uuid->uu[6], uuid->uu[7], uuid->uu[8], uuid->uu[9],
-             uuid->uu[10], uuid->uu[11], uuid->uu[12], uuid->uu[13],
-             uuid->uu[14], uuid->uu[15]);
-}
 
-void aceBt_utilsDumpServer(aceBT_bleGattsService_t* server) {
-    if (!server)
-        return;
-
-    struct list_head* svc_list;
-    struct list_head* char_list;
-    int inc_svc_count = 0;
-    char buff[PRINT_UUID_STR_LEN];
-    memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
-    utilsPrintUuid(buff, &server->uuid, PRINT_UUID_STR_LEN);
-    printf("Service 0 uuid %s serviceType %d\n", buff, server->serviceType);
-
-    struct aceBT_gattIncSvcRec_t* svc_rec;
-    STAILQ_FOREACH(svc_rec, &server->incSvcList, link) {
-        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
-        utilsPrintUuid(buff, &svc_rec->value.uuid, PRINT_UUID_STR_LEN);
-        printf(
-            "Included Services %d service Type %d uuid %s\n",
-            inc_svc_count++, svc_rec->value.serviceType, buff
-        );
-    }
-    uint8_t char_count = 0;
-    struct aceBT_gattCharRec_t* char_rec = NULL;
-    STAILQ_FOREACH(char_rec, &server->charsList, link) {
-        memset(buff, 0, sizeof(char) * PRINT_UUID_STR_LEN);
-        utilsPrintUuid(buff, &char_rec->value.gattRecord.uuid, PRINT_UUID_STR_LEN);
-        if (char_rec->value.gattDescriptor.is_notify && char_rec->value.gattDescriptor.is_set
-        ) {
-            printf(
-                "\tGatt Characteristics with Notifications %d uuid %s\n",
-                char_count++, buff
-            );
-        } else {
-            printf("\tGatt Characteristics %d uuid %s\n", char_count++, buff);
-        }
-
-        if (char_rec->value.gattDescriptor.is_set) {
-            utilsPrintUuid(
-                buff, &char_rec->value.gattDescriptor.gattRecord.uuid,
-                PRINT_UUID_STR_LEN
-            );
-            printf("\t\tDescriptor UUID %s\n", buff);
-
-        } else if (char_rec->value.multiDescCount) {
-            uint8_t desc_num = 1;
-            struct aceBT_gattDescRec_t* desc_rec = NULL;
-            /* Traverse descriptor linked list */
-            STAILQ_FOREACH(desc_rec, &char_rec->value.descList, link) {
-                utilsPrintUuid(
-                    buff, &desc_rec->value.gattRecord.uuid,
-                    PRINT_UUID_STR_LEN
-                );
-                printf("\t\tDescriptor %d UUID %s\n", desc_num++, buff);
-            }
-        }
-    }
-}
 
 void aceBt_bleGattcGetDbCallback(aceBT_bleConnHandle connHandle,
                                  aceBT_bleGattsService_t* gatt_service,
@@ -547,7 +616,7 @@ void aceBt_bleGattcGetDbCallback(aceBT_bleConnHandle connHandle,
 }
 
 void aceBt_bleGattcExecuteWriteCallback(aceBT_bleConnHandle connHandle,
-                                           ace_status_t status) {
+                                        ace_status_t status) {
     printf("CLI callback : aceBt_bleGattcExecuteWriteCallback()\n");
     printf("connHandle %p status %d\n", connHandle, status);
     // if (status == ACE_STATUS_OK) {
@@ -733,6 +802,15 @@ void* gattc_registration(void* arg) {
 }
 
 int main() {
+    // Testing ASCII string to HEX str conversion
+    // char test1[] = "OFF";
+    // char test2[200];
+    // for (int i = 0; i < strlen(test1); i++) {
+    //     sprintf(test2 + 2 * i, "%.2x", test1[i]);
+    // }
+    // printf("HEX str: %s\n", test2);
+    // return 0;
+
     // The ACE BT stuff won't run under root user
     if (setgid((gid_t)BLUETOOTH_GROUP_ID) || setuid((uid_t)BLUETOOTH_USER_ID)) {
         fprintf(stderr, "Can't drop privileges to bluetooth user/group\n");
@@ -853,17 +931,119 @@ int main() {
 
     printf("MAIN - Get BLE DB\n");
     ace_status_t bledb_status = aceBT_bleGetService(ble_conn_handle);
-    printf("MAIN - Get BLE DB status %d\n", bledb_status);
+    // Potential race condition with using this variable for readiness check
+    // Probably want to switch all of these checks to bespoke bools
+    while(pGgatt_service == NULL) {
+        printf("MAIN - Still not gotten GATT DB. Waiting...\n");
+        sleep(2);
+    }
+    printf("MAIN - Got GATT DB status %d\n", bledb_status);
+
+    while(true) {
+        aceBT_uuid_t charac_uuid;
+        char charac_str[] = "ff120000000000000000000000000000";
+        if (utilsConvertHexStrToByteArray(charac_str, charac_uuid.uu) == 0) {
+            printf("MAIN - Failed to convert string to GATT Characteristic UUID\n");
+            return -2;
+        }
+
+        struct aceBT_gattCharRec_t* charac_rec = utilsFindCharRec(
+            charac_uuid, strlen(charac_str) / 2
+        );
+
+        if (charac_rec == NULL) {
+            printf("Couldn't find GATT Characteristic UUID\n");
+            return -3;
+        }
+
+        ace_status_t char_read_status = aceBT_bleReadCharacteristics(
+            bt_session, ble_conn_handle, charac_rec->value
+        );
+        printf("MAIN - Read characteristic. Status %d\n", char_read_status);
+        sleep(2);
+
+
+        printf("MAIN - Write characteristic\n");
+        // Switch the LED status. If currently ON, set to OFF
+        char write_msg_str[10];
+        snprintf(write_msg_str, sizeof(write_msg_str), (pico_led_status) ? "OFF" : "ON");
+        printf("MAIN - About to write %s. Len: %d\n", write_msg_str, strlen(write_msg_str));
+
+        char write_msg[200];
+        for (int i = 0; i < strlen(write_msg_str); i++)
+            sprintf(write_msg + 2 * i, "%.2x", write_msg_str[i]);
+        printf("MAIN - Convert ASCII str to HEX str: %s\n", write_msg);
+
+        // If odd length characteristic, add extra byte
+        uint8_t add_val = (strlen(write_msg) % 2 != 0);
+
+        // charac_rec->value.blobValue.data = aceAlloc_alloc(
+        //     ACE_MODULE_BT, ACE_ALLOC_BUFFER_GENERIC, strlen(write_msg) / 2 + add_val
+        // );
+        // if (charac_rec->value.blobValue.data == NULL) {
+        //     printf("MAIN - Memory allocation failure in blewriteCharacteristics.\n");
+        //     return -4;
+        // }
+
+        void* alloc_result = aceAlloc_alloc(
+            ACE_MODULE_BT, ACE_ALLOC_BUFFER_GENERIC, strlen(write_msg) / 2 + add_val
+        );
+        if (alloc_result == NULL) {
+            printf("MAIN - Memory allocation failure in blewriteCharacteristics.\n");
+            return -4;
+        } else {
+            printf("MAIN - Write alloc result: %" PRIu8 "\n", (uint8_t *) alloc_result);
+            charac_rec->value.blobValue.data = (uint8_t *) alloc_result;
+        }
+
+        if (add_val) {
+            charac_rec->value.blobValue.data[0] = utilsConvertCharToHex(write_msg[0]);
+        }
+
+        uint16_t i;
+        uint16_t offset = add_val;
+        for (i = add_val; i <= strlen(write_msg) / 2; i++) {
+            charac_rec->value.blobValue.data[i] = utilsConvertCharToHex(write_msg[offset++]) << 4;
+            charac_rec->value.blobValue.data[i] |= utilsConvertCharToHex(write_msg[offset++]);
+        }
+
+        charac_rec->value.blobValue.size = strlen(write_msg) / 2 + add_val;
+
+        printf("MAIN - Record blobValue data int: %u\n", charac_rec->value.blobValue.data);
+        printf("MAIN - Record blobValue data str: %s\n", (char *) charac_rec->value.blobValue.data);
+        printf("MAIN - Record blobValue data hex: ");
+        for (int idx = 0; idx < charac_rec->value.blobValue.size; idx++) {
+            printf("%02x ", charac_rec->value.blobValue.data[idx]);
+        }
+        printf("\n");
+
+        ace_status_t char_write_status = aceBT_bleWriteCharacteristics(
+            bt_session, ble_conn_handle, &charac_rec->value,
+            ACEBT_BLE_WRITE_TYPE_RESP_REQUIRED
+            // ACEBT_BLE_WRITE_TYPE_RESP_NO
+        );
+        aceAlloc_free(ACE_MODULE_BT, ACE_ALLOC_BUFFER_GENERIC, charac_rec->value.blobValue.data);
+        printf("MAIN - Wrote characteristic. Status %d\n", char_write_status);
+
+        // memset(charac_rec->value.blobValue.data, 0, strlen(write_msg));
+        // char val[512];
+        // memset(val, 0, sizeof(val) / sizeof(val[0]));
+        // charac_rec->value.blobValue.size = (charac_rec->value.blobValue.size > 512) ? 512 : charac_rec->value.blobValue.size;
+
+        sleep(2);
+    }
+
+    // char charac_value[] = "";
 
     // pthread_t thread1;
     // pthread_create(&thread1, NULL, ble_connection, NULL);
     // pthread_join(thread1, NULL);
 
-    printf("MAIN - Sleeping now...\n");
-    sleep(5);
+    // printf("MAIN - Sleeping now...\n");
+    // sleep(5);
 
-    printf("MAIN - Another sleep...\n");
-    sleep(5);
+    // printf("MAIN - Another sleep...\n");
+    // sleep(5);
 
     printf("MAIN - Final infinite sleep. Use Ctrl-C to exit\n");
     sleep(600);

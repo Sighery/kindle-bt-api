@@ -2,32 +2,25 @@
  * @file
  *
  * @brief ACE BT Session APIs provide interface for a Bluetooth client to
- * instantiate,
- *        use and destroy a Bluetooth session.
+ * instantiate, use and destroy a Bluetooth session.
  *
  * BT Session is the starting point for any middleware/application (referred as
- * Bluetooth client
- * from here on) on ACE that needs to use Bluetooth based
+ * Bluetooth client from here on) on ACE that needs to use Bluetooth based
  * services/communication.
  * A ACE based platform may have either Bluetooth dual mode support or Bluetooth
  * LE only support.
  * A Bluetooth client can invoke aceBT_getSupportedSession() to find session
- * types
- * supported on any ACE based platform.
- * Based on the Application need and underlying platform support, a bluetooth
- * client
- * can call into aceBT_openSession() API to open a Bluetooth Bluetooth dual mode
+ * types supported on any ACE based platform.
+ * Based on the Application need and underlying platform support, a Bluetooth
+ * client can call into aceBT_openSession() API to open a Bluetooth dual mode
  * or Bluetooth LE session.
  * If a Bluetooth session is successfully opened, client will receive session
- * handle as
- * output parameter in aceBT_openSession() API.
+ * handle as output parameter in aceBT_openSession() API.
  * Clients should open a Bluetooth session only once until the session is closed
- * via
- * aceBT_closeSession() API.
+ * via aceBT_closeSession() API.
  * Once the session is opened clients should call into callback registration
- * APIs of
- * bluetooth classic interface and/or Bluetooth LE interface based on the
- * client preferences
+ * APIs of Bluetooth Classic interface and/or Bluetooth LE interface based on
+ * the client preferences.
  */
 
 #ifndef BLUETOOTH_SESSION_API_H
@@ -128,8 +121,8 @@ aceBT_sessionType_t aceBT_getSupportedSession(void);
  * to be opened
  * @param[in] callbacks pointer to session callbacks
  * @param[out] session_handle will be updated with session handle if session
- * creation
- *       was successful.
+ * creation was successful.
+ *
  * @return ACEBT_STATUS_SUCCESS if success
  * @return ACEBT_STATUS_NOMEM if ran out of memory
  * @return ACEBT_STATUS_BUSY if profile is busy connecting another device
