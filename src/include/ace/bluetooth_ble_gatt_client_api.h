@@ -437,28 +437,28 @@ ace_status_t aceBT_bleWriteCharacteristics(
 //     aceBT_bleGattCharacteristicsValue_t* chars_value,
 //     aceBT_responseType_t request_type);
 
-// /**
-//  * @brief API to enable/disable Notification on the server. Invoking this API
-//  * will set the notification on the remote device for passed characteristics
-//  * handle. @ref on_ble_gattc_notify_characteristics_callback would be invoked
-//  * on any change in characteristics value on the server.\n
-//  * @ref on_ble_gattc_write_descriptor_callback will be called to notify that
-//  * notification is set on the server
-//  *
-//  * @param[in] session_handle session handle for the GATT client session
-//  * @param[in] conn_handle connection handle
-//  * @param[in] chars_value GATT characteristics value
-//  * @param[in] enable boolean to enable or disable notification
-//  * @return @ref ACEBT_STATUS_SUCCESS if success
-//  * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
-//  * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
-//  * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
-//  * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
-//  * @return @ref ACEBT_STATUS_FAIL for all other errors
-//  */
-// ace_status_t aceBT_bleSetNotification(
-//     aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
-//     aceBT_bleGattCharacteristicsValue_t chars_value, bool enable);
+/**
+ * @brief API to enable/disable Notification on the server. Invoking this API
+ * will set the notification on the remote device for passed characteristics
+ * handle. @ref on_ble_gattc_notify_characteristics_callback would be invoked
+ * on any change in characteristics value on the server.\n
+ * @ref on_ble_gattc_write_descriptor_callback will be called to notify that
+ * notification is set on the server
+ *
+ * @param[in] session_handle session handle for the GATT client session
+ * @param[in] conn_handle connection handle
+ * @param[in] chars_value GATT characteristics value
+ * @param[in] enable boolean to enable or disable notification
+ * @return @ref ACEBT_STATUS_SUCCESS if success
+ * @return @ref ACEBT_STATUS_NOMEM if ran out of memory
+ * @return @ref ACEBT_STATUS_BUSY if profile is busy connecting another device
+ * @return @ref ACEBT_STATUS_PARM_INVALID if request contains invalid parameters
+ * @return @ref ACEBT_STATUS_NOT_READY if server is not ready
+ * @return @ref ACEBT_STATUS_FAIL for all other errors
+ */
+ace_status_t aceBT_bleSetNotification(
+    aceBT_sessionHandle session_handle, aceBT_bleConnHandle conn_handle,
+    aceBT_bleGattCharacteristicsValue_t chars_value, bool enable);
 
 // /**
 //  * @brief API to enable/disable Indication on the server. Invoking this API

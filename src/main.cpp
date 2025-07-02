@@ -534,11 +534,12 @@ void aceBt_bleGattcNotifyCharsCallback(
 ) {
     printf("CLI callback : %s()\n", __func__);
     printf("connHandle %p\n", connHandle);
-    // char buff[256];
-    // utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
-    // CLI_LOG("UUID:: %s", buff);
-    // for (int idx = 0; idx < charsValue.blobValue.size; idx++)
-    //     CLI_LOG("%x", charsValue.blobValue.data[idx]);
+    char buff[256];
+    utilsPrintUuid(buff, &charsValue.gattRecord.uuid, 256);
+    printf("UUID:: %s\n", buff);
+    for (int idx = 0; idx < charsValue.blobValue.size; idx++)
+        printf("%x", charsValue.blobValue.data[idx]);
+    printf("\n");
 }
 
 void aceBt_bleGattcWriteDescCallback(
@@ -939,23 +940,43 @@ int main() {
     }
     printf("MAIN - Got GATT DB status %d\n", bledb_status);
 
+    // Pico LED characteristic
+    aceBT_uuid_t charac_uuid;
+    char charac_str[] = "ff120000000000000000000000000000";
+    if (utilsConvertHexStrToByteArray(charac_str, charac_uuid.uu) == 0) {
+        printf("MAIN - Failed to convert string to GATT Characteristic UUID\n");
+        return -2;
+    }
+
+    struct aceBT_gattCharRec_t* charac_rec = utilsFindCharRec(
+        charac_uuid, strlen(charac_str) / 2
+    );
+
+    if (charac_rec == NULL) {
+        printf("Couldn't find GATT Characteristic UUID\n");
+        return -3;
+    }
+
+    // BLE notification
+    printf("MAIN - Enabling notification on PICO LED Characteristic\n");
+    ace_status_t notification_status = aceBT_bleSetNotification(
+        bt_session, ble_conn_handle, charac_rec->value, true
+    );
+    printf("MAIN - Notification status: %d\n", notification_status);
+
+    sleep(3);
+
+    printf("MAIN - Disabling notification on PICO LED Characteristic\n");
+    notification_status = aceBT_bleSetNotification(
+        bt_session, ble_conn_handle, charac_rec->value, false
+    );
+    printf("MAIN - Notification status: %d\n", notification_status);
+
+    sleep(3);
+
+
+    // Read and write LED characteristic infinite block
     while(true) {
-        aceBT_uuid_t charac_uuid;
-        char charac_str[] = "ff120000000000000000000000000000";
-        if (utilsConvertHexStrToByteArray(charac_str, charac_uuid.uu) == 0) {
-            printf("MAIN - Failed to convert string to GATT Characteristic UUID\n");
-            return -2;
-        }
-
-        struct aceBT_gattCharRec_t* charac_rec = utilsFindCharRec(
-            charac_uuid, strlen(charac_str) / 2
-        );
-
-        if (charac_rec == NULL) {
-            printf("Couldn't find GATT Characteristic UUID\n");
-            return -3;
-        }
-
         ace_status_t char_read_status = aceBT_bleReadCharacteristics(
             bt_session, ble_conn_handle, charac_rec->value
         );
