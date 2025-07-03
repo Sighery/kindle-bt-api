@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <inttypes.h>
-#include <cstring>
+#include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <stdlib.h>

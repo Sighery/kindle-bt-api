@@ -1,13 +1,13 @@
 project(
   'kindle-bt-api',
-  'cpp',
+  'c',
   version: 'v1.0.0',
-  default_options: ['cpp_std=c++17'],
+  default_options: [],
   meson_version: '>=1.1'
 )
 
 sources = files(
-    './src/main.cpp',
+    './src/main.c',
 )
 
 include_dirs = include_directories(
@@ -27,12 +27,13 @@ kindle_bt_api = executable(
     ace_osal,
     pthread_dep,
   ],
-  cpp_args: '-static-libstdc++',
-  link_args: ['-static-libstdc++'],
+  c_args: '-static-libgcc',
+  link_args: ['-static-libgcc'],
 )
 
 kindle_root = get_option('kindle_root_dir')
 
+# ACE libraries don't have soname so meson will create hardlinks
 cleanup_ace_bt = custom_target(
   'clean up libace_bt hard link',
   depends: kindle_bt_api,
