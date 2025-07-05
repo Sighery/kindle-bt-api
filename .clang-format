@@ -1,0 +1,9 @@
+﻿---
+AlignAfterOpenBracket: BlockIndent
+BreakBeforeBraces: Attach
+BreakStringLiterals: 'true'
+ColumnLimit: '100'
+IndentWidth: '4'
+AllowShortIfStatementsOnASingleLine: WithoutElse
+PointerAlignment: Left
+...
