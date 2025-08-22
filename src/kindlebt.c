@@ -93,9 +93,9 @@ status_t bleRegisterGattClient(sessionHandle session_handle, bleGattClientCallba
     );
     log_error("Result %d", status);
 
-    return aceBt_bleRegisterGattClient(
-        session_handle, &gatt_client_callbacks, ACE_BT_BLE_APPID_GADGETS
-    );
+    // return aceBt_bleRegisterGattClient(
+    //     session_handle, &gatt_client_callbacks, ACE_BT_BLE_APPID_GADGETS
+    // );
 }
 
 status_t bleDeregisterGattClient(sessionHandle session_handle) {
